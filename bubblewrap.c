@@ -24,6 +24,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <ctype.h>
+#include <dirent.h>
 #include <sys/mount.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
@@ -32,6 +33,7 @@
 #include <sys/signalfd.h>
 #include <sys/capability.h>
 #include <sys/prctl.h>
+#include <sys/types.h>
 #include <linux/sched.h>
 #include <linux/seccomp.h>
 #include <linux/filter.h>
@@ -2826,6 +2828,13 @@ main (int    argc,
    * by someone malicious, and that we won't immediately need to
    * access ourselves. */
   base_path = "/tmp";
+  DIR* dir_tester = opendir (base_path);
+  if (dir_tester == NULL) {
+    // not typical rootfs system, might be android
+    base_path = "/data/local/tmp";
+  } else {
+    closedir(dir_tester);
+  }
 
   __debug__ (("creating new namespace\n"));
 
